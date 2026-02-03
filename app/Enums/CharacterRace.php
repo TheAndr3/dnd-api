@@ -12,10 +12,10 @@ enum CharacterRace: string
     case TIEFLING = 'tiefling';
     case GNOME = 'gnome';
     case DRACONIC = 'draconic';
-    
-    public function roles(): string
+
+    public function label(): string
     {
-        return match($this){
+        return match ($this) {
             self::HUMAN => 'Human',
             self::ELF => 'Elf',
             self::ORC => 'Orc',

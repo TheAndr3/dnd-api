@@ -14,9 +14,9 @@ enum CharacterClass: string
     case SORCERER = 'sorcerer';
     case WIZARD = 'wizard';
 
-    public function roles(): string
+    public function label(): string
     {
-        return match($this){
+        return match ($this) {
             self::BARBARIAN => 'Barbarian',
             self::BARD => 'Bard',
             self::CLERIC => 'Cleric',
@@ -28,5 +28,4 @@ enum CharacterClass: string
             self::WIZARD => 'Wizard',
         };
     }
-
 }
