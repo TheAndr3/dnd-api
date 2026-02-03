@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('invitation-code')->unique();
+            $table->string('invitation_code')->unique();
             $table->foreignId('gm_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
