@@ -51,16 +51,29 @@ class CharacterController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['name', 'race', 'class'],
+                required: ['name', 'race', 'class', 'level', 'strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma', 'hit_points', 'armor_class', 'speed', 'initiative', 'mana_points'],
                 properties: [
-                    new OA\Property(property: 'name', type: 'string'),
-                    new OA\Property(property: 'race', type: 'string'),
-                    new OA\Property(property: 'class', type: 'string'),
+                    new OA\Property(property: 'name', type: 'string', example: 'Thorin Oakenshield'),
+                    new OA\Property(property: 'race', type: 'string', enum: ['human', 'elf', 'orc', 'dwarf', 'halfling', 'tiefling', 'gnome', 'draconic'], example: 'dwarf'),
+                    new OA\Property(property: 'class', type: 'string', enum: ['barbarian', 'bard', 'cleric', 'druid', 'paladin', 'ranger', 'rogue', 'sorcerer', 'wizard'], example: 'barbarian'),
+                    new OA\Property(property: 'level', type: 'integer', minimum: 1, maximum: 20, example: 1),
+                    new OA\Property(property: 'strength', type: 'integer', minimum: 1, maximum: 30, example: 16),
+                    new OA\Property(property: 'dexterity', type: 'integer', minimum: 1, maximum: 30, example: 12),
+                    new OA\Property(property: 'constitution', type: 'integer', minimum: 1, maximum: 30, example: 14),
+                    new OA\Property(property: 'intelligence', type: 'integer', minimum: 1, maximum: 30, example: 10),
+                    new OA\Property(property: 'wisdom', type: 'integer', minimum: 1, maximum: 30, example: 10),
+                    new OA\Property(property: 'charisma', type: 'integer', minimum: 1, maximum: 30, example: 8),
+                    new OA\Property(property: 'hit_points', type: 'integer', minimum: 1, example: 12),
+                    new OA\Property(property: 'armor_class', type: 'integer', minimum: 0, example: 14),
+                    new OA\Property(property: 'speed', type: 'integer', minimum: 0, example: 30),
+                    new OA\Property(property: 'initiative', type: 'integer', example: 1),
+                    new OA\Property(property: 'mana_points', type: 'integer', minimum: 0, example: 0),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: 'Character created successfully')
+            new OA\Response(response: 201, description: 'Character created successfully'),
+            new OA\Response(response: 422, description: 'Validation error')
         ]
     )]
     public function store(StoreCharacterRequest $request, DnDService $dndService)
@@ -125,7 +138,8 @@ class CharacterController extends Controller
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'name', type: 'string'),
-                    new OA\Property(property: 'level', type: 'integer'),
+                    new OA\Property(property: 'level', type: 'integer', minimum: 1, maximum: 20),
+                    new OA\Property(property: 'hit_points', type: 'integer', minimum: 1),
                 ]
             )
         ),

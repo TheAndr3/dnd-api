@@ -375,17 +375,119 @@
                                 "required": [
                                     "name",
                                     "race",
-                                    "class"
+                                    "class",
+                                    "level",
+                                    "strength",
+                                    "dexterity",
+                                    "constitution",
+                                    "intelligence",
+                                    "wisdom",
+                                    "charisma",
+                                    "hit_points",
+                                    "armor_class",
+                                    "speed",
+                                    "initiative",
+                                    "mana_points"
                                 ],
                                 "properties": {
                                     "name": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Thorin Oakenshield"
                                     },
                                     "race": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "enum": [
+                                            "human",
+                                            "elf",
+                                            "orc",
+                                            "dwarf",
+                                            "halfling",
+                                            "tiefling",
+                                            "gnome",
+                                            "draconic"
+                                        ],
+                                        "example": "dwarf"
                                     },
                                     "class": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "enum": [
+                                            "barbarian",
+                                            "bard",
+                                            "cleric",
+                                            "druid",
+                                            "paladin",
+                                            "ranger",
+                                            "rogue",
+                                            "sorcerer",
+                                            "wizard"
+                                        ],
+                                        "example": "barbarian"
+                                    },
+                                    "level": {
+                                        "type": "integer",
+                                        "maximum": 20,
+                                        "minimum": 1,
+                                        "example": 1
+                                    },
+                                    "strength": {
+                                        "type": "integer",
+                                        "maximum": 30,
+                                        "minimum": 1,
+                                        "example": 16
+                                    },
+                                    "dexterity": {
+                                        "type": "integer",
+                                        "maximum": 30,
+                                        "minimum": 1,
+                                        "example": 12
+                                    },
+                                    "constitution": {
+                                        "type": "integer",
+                                        "maximum": 30,
+                                        "minimum": 1,
+                                        "example": 14
+                                    },
+                                    "intelligence": {
+                                        "type": "integer",
+                                        "maximum": 30,
+                                        "minimum": 1,
+                                        "example": 10
+                                    },
+                                    "wisdom": {
+                                        "type": "integer",
+                                        "maximum": 30,
+                                        "minimum": 1,
+                                        "example": 10
+                                    },
+                                    "charisma": {
+                                        "type": "integer",
+                                        "maximum": 30,
+                                        "minimum": 1,
+                                        "example": 8
+                                    },
+                                    "hit_points": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "example": 12
+                                    },
+                                    "armor_class": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "example": 14
+                                    },
+                                    "speed": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "example": 30
+                                    },
+                                    "initiative": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "mana_points": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "example": 0
                                     }
                                 },
                                 "type": "object"
@@ -396,6 +498,9 @@
                 "responses": {
                     "201": {
                         "description": "Character created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -462,7 +567,13 @@
                                         "type": "string"
                                     },
                                     "level": {
-                                        "type": "integer"
+                                        "type": "integer",
+                                        "maximum": 20,
+                                        "minimum": 1
+                                    },
+                                    "hit_points": {
+                                        "type": "integer",
+                                        "minimum": 1
                                     }
                                 },
                                 "type": "object"

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class DnDService
@@ -11,13 +12,18 @@ class DnDService
 
     public function getClassInfo(string $className): array
     {
-        // Convert 'Barbarian' to 'barbarian' for the API index
+        // Convert to lowercase for the API
         $index = Str::lower($className);
 
-        $response = Http::get("{$this->baseUrl}/classes/{$index}");
+        try {
+            $response = Http::timeout(5)->get("{$this->baseUrl}/classes/{$index}");
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->successful()) {
+                return $response->json();
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't block character creation
+            Log::warning("Failed to fetch D&D class info for {$className}: " . $e->getMessage());
         }
 
         return [];
