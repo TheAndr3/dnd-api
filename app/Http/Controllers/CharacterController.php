@@ -9,11 +9,33 @@ use App\Models\Character;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Services\DnDService;
+use OpenApi\Attributes as OA;
 
 class CharacterController extends Controller
 {
     use AuthorizesRequests;
 
+    #[OA\Get(
+        path: '/api/characters',
+        summary: 'List user characters',
+        tags: ['Characters'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful operation',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(type: 'object')
+                        )
+                    ]
+                )
+            )
+        ]
+    )]
     public function index(Request $request)
     {
         // Authenticated user characters only
@@ -21,6 +43,26 @@ class CharacterController extends Controller
         return CharacterResource::collection($characters);
     }
 
+    #[OA\Post(
+        path: '/api/characters',
+        summary: 'Create a new character',
+        tags: ['Characters'],
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'race', 'class'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string'),
+                    new OA\Property(property: 'race', type: 'string'),
+                    new OA\Property(property: 'class', type: 'string'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Character created successfully')
+        ]
+    )]
     public function store(StoreCharacterRequest $request, DnDService $dndService)
     {
         $validatedData = $request->validated();
@@ -41,12 +83,56 @@ class CharacterController extends Controller
         ]);
     }
 
+    #[OA\Get(
+        path: '/api/characters/{id}',
+        summary: 'Get character details',
+        tags: ['Characters'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation'),
+            new OA\Response(response: 403, description: 'Unauthorized')
+        ]
+    )]
     public function show(Character $character)
     {
         $this->authorize('view', $character);
         return new CharacterResource($character);
     }
 
+    #[OA\Put(
+        path: '/api/characters/{id}',
+        summary: 'Update character',
+        tags: ['Characters'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string'),
+                    new OA\Property(property: 'level', type: 'integer'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Character updated successfully')
+        ]
+    )]
     public function update(UpdateCharacterRequest $request, Character $character)
     {
         $this->authorize('update', $character);
@@ -56,6 +142,23 @@ class CharacterController extends Controller
         return new CharacterResource($character);
     }
 
+    #[OA\Delete(
+        path: '/api/characters/{id}',
+        summary: 'Delete character',
+        tags: ['Characters'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Character deleted successfully')
+        ]
+    )]
     public function destroy(Character $character)
     {
         $this->authorize('delete', $character);

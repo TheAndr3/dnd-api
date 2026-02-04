@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use OpenApi\Attributes as OA;
 
 class CampaignController extends Controller implements HasMiddleware
 {
@@ -18,6 +19,15 @@ class CampaignController extends Controller implements HasMiddleware
         ];
     }
 
+    #[OA\Get(
+        path: '/api/campaigns',
+        summary: 'List user campaigns',
+        tags: ['Campaigns'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation')
+        ]
+    )]
     public function index()
     {
         $user = Auth::user();
@@ -31,6 +41,24 @@ class CampaignController extends Controller implements HasMiddleware
         return response()->json($campaigns);
     }
 
+    #[OA\Post(
+        path: '/api/campaigns',
+        summary: 'Create a new campaign',
+        tags: ['Campaigns'],
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Campaign created')
+        ]
+    )]
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -48,6 +76,24 @@ class CampaignController extends Controller implements HasMiddleware
         ], 201);
     }
 
+    #[OA\Get(
+        path: '/api/campaigns/{id}',
+        summary: 'Get campaign details',
+        tags: ['Campaigns'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation'),
+            new OA\Response(response: 403, description: 'Unauthorized')
+        ]
+    )]
     public function show(Campaign $campaign)
     {
         $user = Auth::user();
@@ -62,6 +108,27 @@ class CampaignController extends Controller implements HasMiddleware
         return response()->json($campaign);
     }
 
+    #[OA\Post(
+        path: '/api/campaigns/join',
+        summary: 'Join a campaign',
+        tags: ['Campaigns'],
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['invitation_code', 'character_id'],
+                properties: [
+                    new OA\Property(property: 'invitation_code', type: 'string'),
+                    new OA\Property(property: 'character_id', type: 'integer'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Joined successfully'),
+            new OA\Response(response: 404, description: 'Invalid code'),
+            new OA\Response(response: 403, description: 'Unauthorized character')
+        ]
+    )]
     public function join(Request $request)
     {
         $validated = $request->validate([
@@ -95,6 +162,29 @@ class CampaignController extends Controller implements HasMiddleware
         ]);
     }
 
+    #[OA\Delete(
+        path: '/api/campaigns/{id}/characters/{character_id}',
+        summary: 'Remove character from campaign',
+        tags: ['Campaigns'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'character_id',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Character removed')
+        ]
+    )]
     public function removeCharacter(Campaign $campaign, Character $character)
     {
         $user = Auth::user();
