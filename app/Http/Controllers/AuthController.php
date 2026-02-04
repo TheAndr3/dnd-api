@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 class AuthController extends Controller
 {
     #[OA\Post(
-        path: '/api/register',
+        path: '/register',
         summary: 'Register a new user',
         tags: ['Auth'],
         requestBody: new OA\RequestBody(
@@ -62,7 +62,7 @@ class AuthController extends Controller
     }
 
     #[OA\Post(
-        path: '/api/login',
+        path: '/login',
         summary: 'Login user',
         tags: ['Auth'],
         requestBody: new OA\RequestBody(
@@ -113,7 +113,7 @@ class AuthController extends Controller
     }
 
     #[OA\Post(
-        path: '/api/logout',
+        path: '/logout',
         summary: 'Logout user',
         tags: ['Auth'],
         security: [['sanctum' => []]],

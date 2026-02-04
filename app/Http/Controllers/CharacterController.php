@@ -16,7 +16,7 @@ class CharacterController extends Controller
     use AuthorizesRequests;
 
     #[OA\Get(
-        path: '/api/characters',
+        path: '/characters',
         summary: 'List user characters',
         tags: ['Characters'],
         security: [['sanctum' => []]],
@@ -44,7 +44,7 @@ class CharacterController extends Controller
     }
 
     #[OA\Post(
-        path: '/api/characters',
+        path: '/characters',
         summary: 'Create a new character',
         tags: ['Characters'],
         security: [['sanctum' => []]],
@@ -84,7 +84,7 @@ class CharacterController extends Controller
     }
 
     #[OA\Get(
-        path: '/api/characters/{id}',
+        path: '/characters/{id}',
         summary: 'Get character details',
         tags: ['Characters'],
         security: [['sanctum' => []]],
@@ -108,7 +108,7 @@ class CharacterController extends Controller
     }
 
     #[OA\Put(
-        path: '/api/characters/{id}',
+        path: '/characters/{id}',
         summary: 'Update character',
         tags: ['Characters'],
         security: [['sanctum' => []]],
@@ -143,7 +143,7 @@ class CharacterController extends Controller
     }
 
     #[OA\Delete(
-        path: '/api/characters/{id}',
+        path: '/characters/{id}',
         summary: 'Delete character',
         tags: ['Characters'],
         security: [['sanctum' => []]],

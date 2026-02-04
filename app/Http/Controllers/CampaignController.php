@@ -20,7 +20,7 @@ class CampaignController extends Controller implements HasMiddleware
     }
 
     #[OA\Get(
-        path: '/api/campaigns',
+        path: '/campaigns',
         summary: 'List user campaigns',
         tags: ['Campaigns'],
         security: [['sanctum' => []]],
@@ -42,7 +42,7 @@ class CampaignController extends Controller implements HasMiddleware
     }
 
     #[OA\Post(
-        path: '/api/campaigns',
+        path: '/campaigns',
         summary: 'Create a new campaign',
         tags: ['Campaigns'],
         security: [['sanctum' => []]],
@@ -77,7 +77,7 @@ class CampaignController extends Controller implements HasMiddleware
     }
 
     #[OA\Get(
-        path: '/api/campaigns/{id}',
+        path: '/campaigns/{id}',
         summary: 'Get campaign details',
         tags: ['Campaigns'],
         security: [['sanctum' => []]],
@@ -109,7 +109,7 @@ class CampaignController extends Controller implements HasMiddleware
     }
 
     #[OA\Post(
-        path: '/api/campaigns/join',
+        path: '/campaigns/join',
         summary: 'Join a campaign',
         tags: ['Campaigns'],
         security: [['sanctum' => []]],
@@ -163,7 +163,7 @@ class CampaignController extends Controller implements HasMiddleware
     }
 
     #[OA\Delete(
-        path: '/api/campaigns/{id}/characters/{character_id}',
+        path: '/campaigns/{id}/characters/{character_id}',
         summary: 'Remove character from campaign',
         tags: ['Campaigns'],
         security: [['sanctum' => []]],
