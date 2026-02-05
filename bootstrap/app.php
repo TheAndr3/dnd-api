@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Register SanitizeInput middleware globally for API routes
+        $middleware->api(prepend: [
+            \App\Http\Middleware\SanitizeInput::class,
+        ]);
+
         // For API routes, return JSON 401 instead of redirecting to login
         $middleware->redirectGuestsTo(function (Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
