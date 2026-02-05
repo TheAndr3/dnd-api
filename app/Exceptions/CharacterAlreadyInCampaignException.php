@@ -6,6 +6,6 @@ use Exception;
 
 class CharacterAlreadyInCampaignException extends Exception
 {
-    protected $message = 'Character already in campaign';
-    protected $code = 400;
+    protected $message = 'Character is already in this campaign';
+    protected $code = 409;
 }

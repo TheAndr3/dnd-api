@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\CharacterAlreadyInCampaignException;
+use App\Exceptions\CharacterNotInCampaignException;
 use App\Exceptions\CharacterOwnershipException;
 use App\Exceptions\InvalidInvitationCodeException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -88,14 +89,25 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // CharacterAlreadyInCampaignException - 400
+        // CharacterAlreadyInCampaignException - 409 (Conflict)
         $exceptions->render(function (CharacterAlreadyInCampaignException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'success' => false,
                     'message' => $e->getMessage(),
                     'errors' => [],
-                ], 400);
+                ], 409);
+            }
+        });
+
+        // CharacterNotInCampaignException - 404
+        $exceptions->render(function (CharacterNotInCampaignException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'errors' => [],
+                ], 404);
             }
         });
     })->create();

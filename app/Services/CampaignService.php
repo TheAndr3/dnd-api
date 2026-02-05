@@ -73,9 +73,15 @@ class CampaignService
 
     /**
      * Remove a character from a campaign.
+     *
+     * @throws CharacterNotInCampaignException
      */
     public function removeCharacter(Campaign $campaign, Character $character): void
     {
+        if (!$campaign->characters()->where('character_id', $character->id)->exists()) {
+            throw new \App\Exceptions\CharacterNotInCampaignException();
+        }
+
         $campaign->characters()->detach($character->id);
     }
 

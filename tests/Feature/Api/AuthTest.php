@@ -68,4 +68,57 @@ class AuthTest extends TestCase
 
         $this->assertCount(0, $user->tokens);
     }
+
+    // ==========================================================================
+    // Security Tests: Unauthenticated Access
+    // ==========================================================================
+
+    /**
+     * Testa se rotas protegidas retornam 401 para usuários não autenticados.
+     */
+    public function test_unauthenticated_user_cannot_access_protected_routes()
+    {
+        // Characters
+        $this->getJson('/api/characters')->assertStatus(401);
+        $this->postJson('/api/characters', [])->assertStatus(401);
+        $this->getJson('/api/characters/1')->assertStatus(401);
+        $this->putJson('/api/characters/1', [])->assertStatus(401);
+        $this->deleteJson('/api/characters/1')->assertStatus(401);
+
+        // Campaigns
+        $this->getJson('/api/campaigns')->assertStatus(401);
+        $this->postJson('/api/campaigns', [])->assertStatus(401);
+        $this->getJson('/api/campaigns/1')->assertStatus(401);
+        $this->postJson('/api/campaigns/join', [])->assertStatus(401);
+    }
+
+    /**
+     * Testa se token inválido/malformado retorna 401.
+     */
+    public function test_invalid_token_returns_unauthorized()
+    {
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer invalid_token_12345',
+        ])->getJson('/api/characters');
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Testa se token revogado retorna 401.
+     */
+    public function test_revoked_token_returns_unauthorized()
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test_token')->plainTextToken;
+
+        // Revoga o token
+        $user->tokens()->delete();
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson('/api/characters');
+
+        $response->assertStatus(401);
+    }
 }

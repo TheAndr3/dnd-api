@@ -23,7 +23,7 @@ jobs:
         with:
           php-version: '8.2'
           extensions: pdo_sqlite, pdo_pgsql, mbstring, xml, ctype, json, bcmath, zip
-          coverage: none
+          coverage: xdebug
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -45,8 +45,15 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
-      - name: Run API tests
-        run: php artisan test tests/Feature/Api --colors=always
+      - name: Run API tests with coverage
+        run: php artisan test tests/Feature/Api --coverage-clover=coverage.xml --colors=always
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          verbose: true
 
   # =============================================================================
   # Deploy Job: Trigger Render deployment (only on main branch push)

@@ -147,4 +147,71 @@ class CampaignTest extends TestCase
             'character_id' => $character->id,
         ]);
     }
+
+    // ==========================================================================
+    // Business Logic Tests: Edge Cases
+    // ==========================================================================
+
+    /**
+     * Testa se o mesmo personagem NÃO pode entrar duas vezes na mesma campanha.
+     */
+    public function test_character_cannot_join_same_campaign_twice()
+    {
+        $gm = User::factory()->create();
+        $campaign = Campaign::factory()->create(['gm_id' => $gm->id]);
+
+        /** @var User $player */
+        $player = User::factory()->create();
+        $character = Character::factory()->create(['user_id' => $player->id]);
+
+        // Primeira inscrição - sucesso
+        $campaign->characters()->attach($character->id);
+
+        // Segunda tentativa - deve falhar com 409
+        $response = $this->actingAs($player, 'sanctum')->postJson('/api/campaigns/join', [
+            'invitation_code' => $campaign->invitation_code,
+            'character_id' => $character->id,
+        ]);
+
+        $response->assertStatus(409)
+            ->assertJsonPath('message', 'Character is already in this campaign');
+    }
+
+    /**
+     * Testa tentativa de remover um personagem que NÃO está na campanha.
+     */
+    public function test_cannot_remove_character_not_in_campaign()
+    {
+        /** @var User $gm */
+        $gm = User::factory()->create();
+        $campaign = Campaign::factory()->create(['gm_id' => $gm->id]);
+
+        $player = User::factory()->create();
+        $character = Character::factory()->create(['user_id' => $player->id]);
+        // NÃO anexamos o personagem à campanha
+
+        $response = $this->actingAs($gm, 'sanctum')
+            ->deleteJson("/api/campaigns/{$campaign->id}/characters/{$character->id}");
+
+        $response->assertStatus(404)
+            ->assertJsonPath('message', 'Character is not in this campaign');
+    }
+
+    // ==========================================================================
+    // Resilience Tests: 404 Responses
+    // ==========================================================================
+
+    /**
+     * Testa se GET para campanha inexistente retorna 404.
+     */
+    public function test_get_nonexistent_campaign_returns_404()
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/campaigns/99999');
+
+        $response->assertStatus(404);
+    }
 }
