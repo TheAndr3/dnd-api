@@ -1,0 +1,22 @@
+# Dependencies
+/vendor
+/node_modules
+
+# Laravel generated files
+/public/hot
+/public/storage
+/storage/*.key
+.env
+.env.backup
+.env.production
+
+# IDE and OS
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+
+# Build artifacts (but keep Dockerfile and docker/ directory)
