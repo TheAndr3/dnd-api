@@ -6,14 +6,18 @@ use App\Http\Requests\StoreCharacterRequest;
 use App\Http\Requests\UpdateCharacterRequest;
 use App\Http\Resources\CharacterResource;
 use App\Models\Character;
+use App\Services\CharacterService;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Services\DnDService;
 use OpenApi\Attributes as OA;
 
 class CharacterController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(
+        private CharacterService $characterService
+    ) {}
 
     #[OA\Get(
         path: '/characters',
@@ -38,9 +42,7 @@ class CharacterController extends Controller
     )]
     public function index(Request $request)
     {
-        // Authenticated user characters only
-        $characters = $request->user()->characters()->latest()->paginate(10);
-        return CharacterResource::collection($characters);
+        return CharacterResource::collection($this->characterService->getUserCharacters($request->user()));
     }
 
     #[OA\Post(
@@ -76,24 +78,11 @@ class CharacterController extends Controller
             new OA\Response(response: 422, description: 'Validation error')
         ]
     )]
-    public function store(StoreCharacterRequest $request, DnDService $dndService)
+    public function store(StoreCharacterRequest $request)
     {
-        $validatedData = $request->validated();
+        $result = $this->characterService->createCharacter($request->user(), $request->validated());
 
-        $character = $request->user()->characters()->create($validatedData);
-
-        // Fetch external API data
-        $classInfo = $dndService->getClassInfo($character->class->value);
-
-        return (new CharacterResource($character))->additional([
-            'external_data' => [
-                'class_info' => [
-                    'hit_die' => $classInfo['hit_die'] ?? null,
-                    'proficiencies' => $classInfo['proficiencies'] ?? [],
-                    'saving_throws' => $classInfo['saving_throws'] ?? [],
-                ]
-            ]
-        ]);
+        return (new CharacterResource($result['character']))->additional($result['external_data'] ? ['external_data' => $result['external_data']] : []);
     }
 
     #[OA\Get(
@@ -117,6 +106,7 @@ class CharacterController extends Controller
     public function show(Character $character)
     {
         $this->authorize('view', $character);
+
         return new CharacterResource($character);
     }
 
@@ -151,9 +141,7 @@ class CharacterController extends Controller
     {
         $this->authorize('update', $character);
 
-        $character->update($request->validated());
-
-        return new CharacterResource($character);
+        return new CharacterResource($this->characterService->updateCharacter($character, $request->validated()));
     }
 
     #[OA\Delete(
@@ -177,7 +165,7 @@ class CharacterController extends Controller
     {
         $this->authorize('delete', $character);
 
-        $character->delete();
+        $this->characterService->deleteCharacter($character);
 
         return response()->json(['message' => 'Personagem excluído com sucesso']);
     }

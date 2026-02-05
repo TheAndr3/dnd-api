@@ -1,9 +1,15 @@
 <?php
 
+use App\Exceptions\CharacterAlreadyInCampaignException;
+use App\Exceptions\CharacterOwnershipException;
+use App\Exceptions\InvalidInvitationCodeException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,5 +28,69 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // ModelNotFoundException - 404
+        $exceptions->render(function (ModelNotFoundException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Resource not found',
+                    'errors' => [],
+                ], 404);
+            }
+        });
+
+        // ValidationException - 422
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+        });
+
+        // AuthorizationException - 403
+        $exceptions->render(function (AuthorizationException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Unauthorized',
+                    'errors' => [],
+                ], 403);
+            }
+        });
+
+        // InvalidInvitationCodeException - 404
+        $exceptions->render(function (InvalidInvitationCodeException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'errors' => [],
+                ], 404);
+            }
+        });
+
+        // CharacterOwnershipException - 403
+        $exceptions->render(function (CharacterOwnershipException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'errors' => [],
+                ], 403);
+            }
+        });
+
+        // CharacterAlreadyInCampaignException - 400
+        $exceptions->render(function (CharacterAlreadyInCampaignException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'errors' => [],
+                ], 400);
+            }
+        });
     })->create();
