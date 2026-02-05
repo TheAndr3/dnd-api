@@ -11,8 +11,13 @@ if [ -n "$DATABASE_URL" ]; then
     echo "⏳ Waiting for database connection..."
     
     # Extract host and port from DATABASE_URL
-    DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\):.*/\1/p')
-    DB_PORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
+    # Remove query parameters first, then extract host (handles both host:port and host/db formats)
+    DB_HOST=$(echo $DATABASE_URL | sed 's/?.*//' | sed -n 's/.*@\([^:\/]*\).*/\1/p')
+    # Extract port if present, otherwise default to 5432
+    DB_PORT=$(echo $DATABASE_URL | sed 's/?.*//' | sed -n 's/.*@[^:]*:\([0-9]*\).*/\1/p')
+    if [ -z "$DB_PORT" ]; then
+        DB_PORT=5432
+    fi
     
     # Simple wait loop (max 30 seconds)
     RETRIES=30
