@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\JoinCampaignRequest;
+use App\Http\Resources\CampaignResource;
 use App\Models\Campaign;
 use App\Models\Character;
 use App\Services\CampaignService;
@@ -36,7 +37,9 @@ class CampaignController extends Controller implements HasMiddleware
     )]
     public function index()
     {
-        return response()->json($this->campaignService->getUserCampaigns(Auth::user()));
+        $campaigns = $this->campaignService->getUserCampaigns(Auth::user());
+
+        return CampaignResource::collection($campaigns);
     }
 
     #[OA\Post(
@@ -61,7 +64,10 @@ class CampaignController extends Controller implements HasMiddleware
     {
         $campaign = $this->campaignService->createCampaign(Auth::user(), $request->validated());
 
-        return response()->json(['message' => 'Campaign created successfully', 'data' => $campaign], 201);
+        return (new CampaignResource($campaign->load('master')))
+            ->additional(['message' => 'Campaign created successfully'])
+            ->response()
+            ->setStatusCode(201);
     }
 
     #[OA\Get(
@@ -88,7 +94,9 @@ class CampaignController extends Controller implements HasMiddleware
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return response()->json($this->campaignService->getCampaignDetails($campaign));
+        $campaign->load(['master', 'characters']);
+
+        return new CampaignResource($campaign);
     }
 
     #[OA\Post(

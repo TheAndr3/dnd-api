@@ -30,8 +30,8 @@ class CharacterResource extends JsonResource
                 'initiative' => $this->initiative,
                 'mana_points' => $this->mana_points,
             ],
-            'created_at' => $this->created_at->format('d/m/Y H:i'),
-            'updated_at' => $this->updated_at->format('d/m/Y H:i'),
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }
